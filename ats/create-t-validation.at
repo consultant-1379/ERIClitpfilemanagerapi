@@ -1,0 +1,25 @@
+
+#Allowed path values
+litp create -t managed-file -p /infrastructure/storage/managed_files/mgmt_path1 -o mode=000 path=/file3/aaaaa/bbbb/cccc/dddd/eeee/ffff/gggg/hhhh/iiii/jjjj/kkkk/llll/aaaaa/bbbb/cccc/dddd/eeee/ffff/gggg/hhhh/iiii/jjjj/kkkk/llll
+litp create -t managed-file -p /infrastructure/storage/managed_files/mgmt_path2 -o mode=000 path=/file3/.hidden
+litp create -t managed-file -p /infrastructure/storage/managed_files/mgmt_path3 -o mode=000 path=/file3/under_score
+
+#Check ValidationError appears when mode has invalid value.
+assertError --err_type ValidationError --err_message "Invalid value '-s'"    create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o path=/tmp/test.txt mode=-s
+assertError --err_type ValidationError --err_message "Invalid value '0'"     create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o path=/tmp/test.txt mode=0
+assertError --err_type ValidationError --err_message "Invalid value '00'"    create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o path=/tmp/test.txt mode=00
+assertError --err_type ValidationError --err_message "Invalid value '77777'" create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o path=/tmp/test.txt mode=77777
+assertError --err_type ValidationError --err_message "Invalid value '0009'"  create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o path=/tmp/test.txt mode=0009
+
+#Check ValidationError appears when path has invalid value.
+assertError --err_type ValidationError --err_message "Invalid value '/tmp*%test.txt'" create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o mode=000 path=/tmp*%test.txt
+assertError --err_type ValidationError --err_message "Invalid value 'tmp/test.txt'"   create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o mode=000 path=tmp/test.txt
+assertError --err_type ValidationError --err_message "Invalid value '/'"              create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o mode=000 path=/
+assertError --err_type ValidationError --err_message "Invalid value '/tmp/\\'"        create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o path=/tmp/\\ mode=000
+
+# expect a validation error when path property is missing
+assertError --err_type MissingRequiredPropertyError --err_message 'ItemType "managed-file" is required to have a property with name "path"' create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o mode=0000
+
+# expect a validation error when expected properties are missing
+assertError --err_type MissingRequiredPropertyError --err_message 'ItemType "managed-file" is required to have a property with name "mode"' create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a -o path=/tmp/test.txt
+assertError --err_type MissingRequiredPropertyError --err_message 'ItemType "managed-file" is required to have a property with name "mode"' create -t managed-file -p /infrastructure/storage/managed_files/mgmt_file1a
